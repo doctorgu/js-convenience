@@ -15,7 +15,7 @@ Wiki Editor helper function to use in Chrome DevTools
 1. 테이블의 셀을 2개 이상 선택
 
 ### 스크립트 실행
-1. Sniffet의 맨 마지막 줄로 가서 작업할 함수를 입력하고 [Ctrl] + [Enter] 키를 눌러 실행
+1. Snippet의 맨 마지막 줄로 가서 작업할 함수를 입력하고 [Ctrl] + [Enter] 키를 눌러 실행
 
 ```javascript
 // 선택된 셀의 내용을 전부 삭제
