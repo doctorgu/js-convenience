@@ -9,11 +9,7 @@ const readline = require('readline')
 02-Nov-2021 01:01:13.853 web01	Tx Msg:1,018,741 messages
 */
 function prefixTimeServer(time, serverName, line) {
-  if (/^\s/.test(line)) {
-    return `${time} ${serverName} ${line}`
-  } else {
-    return line
-  }
+  return `${time} ${serverName} ${line}`
 }
 /*
 --summary
@@ -64,13 +60,10 @@ async function getNormalizedLines(lineSeparator, path, serverName) {
   let timeCur = ''
   const linesNew = []
   for await (const line of rl) {
-    // Skip empty line
-    if (!line) continue
-
     const isBlankStarted = /^\s/.test(line)
 
     let lineNew = ''
-    if (!isBlankStarted) {
+    if (!isBlankStarted && line) {
       timeCur = getTime(line)
       lineNew = prefixServer(timeCur, serverName, line)
     } else {
@@ -118,6 +111,7 @@ web01_web02.log:
 */
 async function mergeEachServerCatalinaLog(
   lineSeparator,
+  timeLength,
   pathAndServerNames,
   fullPathDest
 ) {
@@ -128,13 +122,10 @@ async function mergeEachServerCatalinaLog(
     const lines = await getNormalizedLines(lineSeparator, path, serverName)
     linesMerged = [...linesMerged, ...lines]
   }
-  // pathAndServerNames.forEach(async (item) => {
-  //   const { path, serverName } = item
-  //   const lines = await getNormalizedLines(lineSeparator, path, serverName)
-  //   linesMerged = [...linesMerged, ...lines]
-  // })
 
-  linesMerged.sort()
+  linesMerged.sort((a, b) =>
+    a.substr(0, timeLength).localeCompare(b.substr(0, timeLength))
+  )
 
   const content = linesMerged.join(lineSeparator)
   fs.writeFileSync(fullPathDest, content)
