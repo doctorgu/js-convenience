@@ -1,2 +1,2 @@
 # Convenience of Javascript
-For each coding life
+For easy coding life
