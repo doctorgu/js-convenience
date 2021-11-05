@@ -145,13 +145,13 @@ mergeEachServerCatalinaLog(
   '\n',
   [
     {
-      path: 'G:\\My Drive\\Woowa\\Task\\20211025 SVCSTTA-156 PersonalInfo\\log\\catalina.2021-11-02_web01.log',
+      path: 'C:\\web01.log',
       serverName: 'web01',
     },
     {
-      path: 'G:\\My Drive\\Woowa\\Task\\20211025 SVCSTTA-156 PersonalInfo\\log\\catalina.2021-11-02_web02.log',
+      path: 'C:\\web02.log',
       serverName: 'web02',
     },
   ],
-  'G:\\My Drive\\Woowa\\Task\\20211025 SVCSTTA-156 PersonalInfo\\log\\catalina.2021-11-02_web01_web02.log'
+  'C:\\web01_web02.log'
 )
