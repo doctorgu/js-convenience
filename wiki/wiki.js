@@ -171,7 +171,7 @@ function extendSelection(count, direction) {
 
 /*
 --summary
-"@홍길동"으로 표시되는 a 태그의 사용자 정보 중 username, displayName, userkey를 다른 사용자 것으로 변경
+"@홍길동"으로 표시되는 a 태그의 사용자 정보 중 username, display, userkey를 다른 사용자 것으로 변경
 --example
 replaceAllUser(
     { username: 'id1', display: '홍길일', userkey: '8a90bc14772b0b27017b393465e4044b' },
@@ -179,7 +179,6 @@ replaceAllUser(
 )
 */
 function replaceAllUser(from = {}, to = {}) {
-    /**/
     [...document.querySelectorAll('a')].forEach(a => {
         for (let i = 0; i < a.attributes.length; i += 1) {
             const attr = a.attributes[i]
@@ -197,6 +196,52 @@ function replaceAllUser(from = {}, to = {}) {
 
         if (a.innerText.indexOf(from.display) !== -1) {
             a.innerText = to.display
+        }
+    })
+}
+
+/*
+--summary
+time 태그의 datetime attribute와 innerText를 동시에 변경함
+--example
+replaceDate('2021-11-15', '2021-11-17')
+
+<time datetime="2021-11-15" class="non-editable" contenteditable="false" onselectstart="return false;">15 Nov 2021</time>
+->
+<time datetime="2021-11-17" class="non-editable" contenteditable="false" onselectstart="return false;">17 Nov 2021</time>
+*/
+function replaceDate(from, to) {
+    function formatDate(date, isStandard) {
+        const yyyy = date.getFullYear().toString()
+        const mm = (date.getMonth() + 1).toString().padStart(2, '0')
+        const dd = date.getDate().toString().padStart(2, '0')
+
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        const monthName = monthNames[date.getMonth()]
+
+        if (isStandard) {
+            return `${yyyy}-${mm}-${dd}`
+        }
+        else {
+            return `${dd} ${monthName} ${yyyy}`
+        }
+    }
+
+    if (!from.getDate) {
+        from = new Date(from)
+    }
+    if (!to.getDate) {
+        to = new Date(to)
+    }
+
+    const list = [...document.querySelectorAll('time')]
+    list.forEach(t => {
+        const datetime = new Date(t.getAttribute('datetime'))
+        const display = t.innerText
+
+        if (datetime.getTime() === from.getTime()) {
+            t.setAttribute('datetime', formatDate(to, true))
+            t.innerText = formatDate(to, false)
         }
     })
 }
