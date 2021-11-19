@@ -245,3 +245,20 @@ function replaceDate(from, to) {
         }
     })
 }
+
+/*
+--summary
+전체 time 태그의 datetime attribute, 전체 사용자용 a  태그의 data-username을 리턴함
+--example
+getAllDateUser() // ['2021-11-15', '2021-11-17', 'id1', 'id2']
+*/
+function getAllDateUser() {
+    const dateElems = [...document.querySelectorAll('time')]
+    const dates = [...new Set(dateElems.map(t => t.getAttribute('datetime')).sort())]
+
+    const userElems = [...document.querySelectorAll('a')]
+                    .filter(a => !!a.getAttribute('data-username'))
+    const users = [...new Set(userElems.map(t => t.getAttribute('data-username')).sort())]
+
+    return [...dates, ...users]
+}
