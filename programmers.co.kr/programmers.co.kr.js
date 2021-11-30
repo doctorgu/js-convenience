@@ -152,7 +152,7 @@ function addTestCase(value) {
 --summary
 Print all test case separated by '&'
 --remark
-Last item is return in each row
+Last item in each row is return value
 --example
 getTestCase()
 [1, 1] & 4 & -1
