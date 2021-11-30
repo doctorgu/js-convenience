@@ -1,4 +1,4 @@
-function getMatches(experienceString) {
+function getMatchesForExperience(experienceString) {
     const list = []
     const matches = experienceString.matchAll(/(?<yyyyFrom>\d{4})\.(?<mmFrom>\d{2}) ~ (?<yyyyTo>\d{4})\.(?<mmTo>\d{2})\t(?<company>.+?)\t(?<role>.+?)\n- (?<language>.+?)\n- (?<db>.+?)\n/g)
     return [...matches]
@@ -44,7 +44,7 @@ function getExperience(match) {
     return experience
 }
 
-async function patch(experiences) {
+async function patchExperience(experiences) {
     experiences = experiences.map((ex, i) => {
         const index = (i === experiences.length - 1) ? -1 : null
         return { ...ex, index }
@@ -80,7 +80,7 @@ Insert all my job experiences to programmers.co.kr site
 --remark
 Text format is customized for only my resume, so someone need to used this function must change code.
 --example
-patchAll(`1997.02 ~ 1997.02	디지타워 시스템	물류관리 시스템
+patchExperienceAll(`1997.02 ~ 1997.02	디지타워 시스템	물류관리 시스템
 - VB 5.0, Access VBA
 - Access
 1997.03 ~ 1997.08	태영 시스템	병원 관리 프로그램
@@ -88,13 +88,102 @@ patchAll(`1997.02 ~ 1997.02	디지타워 시스템	물류관리 시스템
 - Access
 `)
 */
-async function patchAll(experienceString) {
-    const matches = getMatches(experienceString)
+async function patchExperienceAll(experienceString) {
+    const matches = getMatchesForExperience(experienceString)
     const experiences = []
     for (let i = 0; i < matches.length; i += 1) {
         const experience = getExperience(matches[i])
         experiences.push(experience)
-        const result = await patch(experiences)
+        const result = await patchExperience(experiences)
         console.log(i, result)
     }
 }
+
+
+function getNameValues(value, separator = '&') {
+    const nameValues = []
+
+    const lines = value.split(/\r*\n/)
+    for (let i = 0; i < lines.length; i += 1) {
+        const line = lines[i].trim()
+        if (!line) continue
+        
+        const items = line.split(separator)
+
+        const nameParam = `custom_testcases[${i}][inputs][]`
+        for (j = 0; j < items.length - 1; j += 1) {
+            const valueParam = items[j].trim()
+            nameValues.push([nameParam, valueParam])
+        }
+
+        const nameRet = `custom_testcases[${i}][output]`
+        const valueRet = items[items.length - 1]
+        nameValues.push([nameRet, valueRet])
+    }
+
+    return nameValues
+}
+
+/*
+--summary
+Submit test case by appending input and clicking [확인] button
+--example
+addTestCase(`
+[1, 1] & 4 & -1
+[1, 1, 4] & 4 & 2
+[1, 1] & 0 & 0
+[1, 1, 1] & 2 & 2
+`)
+*/
+function addTestCase(value) {
+    const nameValues = getNameValues(value)
+
+    $('#applicant-testcase-form').find('input').remove()
+
+    nameValues.forEach(([name, value]) => {
+        const html = `<input name="${name}" value="${value}" />`
+        $('#applicant-testcase-form').append(html)
+    })
+    
+    $('#applicant-testcase-modal .add-testcase').click()
+}
+
+/*
+--summary
+Print all test case separated by '&'
+--remark
+Last item is return in each row
+--example
+getTestCase()
+[1, 1] & 4 & -1
+[1, 1, 4] & 4 & 2
+[1, 1] & 0 & 0
+[1, 1, 1] & 2 & 2
+*/
+function getTestCase() {
+    const parameters = []
+    const returns = []
+    $('#applicant-testcase-form').find('input').each(function () {
+        const m = this.name.match(/custom_testcases\[(?<i>\d+)\]\[(?<io>inputs|output)\]/)
+        if (m) {
+            const i = parseInt(m.groups.i)
+            if (m.groups.io === 'inputs') {
+                parameters[i] = parameters[i] ? `${parameters[i]} & ${this.value}` : this.value
+            } else {
+                returns[i] = this.value
+            }
+        }
+    })
+
+    const list = []
+    returns.forEach((ret, i) => {
+        list.push(`${parameters[i]} & ${returns[i]}`)
+    })
+
+    return list.join('\n')
+}
+addTestCase(`[1, 1] & 4 & -1
+[1, 1, 4] & 4 & 2
+[1, 1] & 0 & 0
+[1, 1, 1] & 2 & 2
+`)
