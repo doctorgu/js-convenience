@@ -100,7 +100,7 @@ async function patchExperienceAll(experienceString) {
 }
 
 
-function getNameValues(value, separator = '&') {
+function getNameValues(value, separator) {
     const nameValues = []
 
     const lines = value.split(/\r*\n/)
@@ -135,8 +135,8 @@ addTestCase(`
 [1, 1, 1] & 2 & 2
 `)
 */
-function addTestCase(value) {
-    const nameValues = getNameValues(value)
+function addTestCase(value, separator = '&') {
+    const nameValues = getNameValues(value, separator)
 
     $('#applicant-testcase-form').find('input').remove()
 
@@ -152,15 +152,15 @@ function addTestCase(value) {
 --summary
 Print all test case separated by '&'
 --remark
-Last item in each row is return value
+Last item is return in each row
 --example
-getTestCase()
+console.log(getTestCase())
 [1, 1] & 4 & -1
 [1, 1, 4] & 4 & 2
 [1, 1] & 0 & 0
 [1, 1, 1] & 2 & 2
 */
-function getTestCase() {
+function getTestCase(separator = '&') {
     const parameters = []
     const returns = []
     $('#applicant-testcase-form').find('input').each(function () {
@@ -168,7 +168,7 @@ function getTestCase() {
         if (m) {
             const i = parseInt(m.groups.i)
             if (m.groups.io === 'inputs') {
-                parameters[i] = parameters[i] ? `${parameters[i]} & ${this.value}` : this.value
+                parameters[i] = parameters[i] ? `${parameters[i]} ${separator} ${this.value}` : this.value
             } else {
                 returns[i] = this.value
             }
@@ -177,13 +177,23 @@ function getTestCase() {
 
     const list = []
     returns.forEach((ret, i) => {
-        list.push(`${parameters[i]} & ${returns[i]}`)
+        list.push(`${parameters[i]} ${separator} ${returns[i]}`)
     })
 
     return list.join('\n')
 }
-addTestCase(`[1, 1] & 4 & -1
-[1, 1, 4] & 4 & 2
-[1, 1] & 0 & 0
-[1, 1, 1] & 2 & 2
-`)
+
+/*
+--summary
+Apply shortcut of [Ctrl] + K to [코드 실행] button.
+--example
+applyShortcutToRunCode()
+*/
+function applyShortcutToRunCode(keyCode = 'K') {
+    $(document).on('keydown', function (e) {
+        if (e.ctrlKey && e.keyCode === keyCode.charCodeAt(0)) {
+            e.stopPropagation()
+            $('#run-code').click()
+        }
+    })
+}
