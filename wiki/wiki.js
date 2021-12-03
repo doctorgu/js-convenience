@@ -51,7 +51,7 @@ function setHhmm(hhmmStart) {
         let hNew = h
         let mNew = m + duration
         if (mNew >= 60) {
-            hNew += mNew / 60
+            hNew += parseInt(mNew / 60)
             mNew = mNew % 60
         }
 
@@ -132,8 +132,8 @@ function extendSelection(count, direction) {
             break;
         case 'up':
             selectedNew = {
-                row1: selected.row1 - 1,
-                row2: selected.row1 - count,
+                row1: selected.row1 - count,
+                row2: selected.row1 - 1,
                 col1: selected.col1,
                 col2: selected.col2,
             }
@@ -150,12 +150,13 @@ function extendSelection(count, direction) {
             selectedNew = {
                 row1: selected.row1,
                 row2: selected.row2,
-                col1: selected.col1 + count,
-                col2: selected.col1 + 1,
+                col1: selected.col1 + 1,
+                col2: selected.col1 + count,
             }
             break;
     }
-
+    console.log(selected, selectedNew)
+    
     const tbl = document.querySelector("td[data-mce-selected='1']").closest("table")
 
     for (let rw = selectedNew.row1; rw <= selectedNew.row2; rw += 1) {
