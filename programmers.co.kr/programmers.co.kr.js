@@ -117,7 +117,7 @@ function getNameValues(value, separator) {
         }
 
         const nameRet = `custom_testcases[${i}][output]`
-        const valueRet = items[items.length - 1]
+        const valueRet = items[items.length - 1].trim()
         nameValues.push([nameRet, valueRet])
     }
 
@@ -141,8 +141,8 @@ function addTestCase(value, separator = '&') {
     $('#applicant-testcase-form').find('input').remove()
 
     nameValues.forEach(([name, value]) => {
-        const html = `<input name="${name}" value="${value}" />`
-        $('#applicant-testcase-form').append(html)
+        const input = $(`<input name="${name}" />`).val(value)
+        $('#applicant-testcase-form').append(input)
     })
     
     $('#applicant-testcase-modal .add-testcase').click()
