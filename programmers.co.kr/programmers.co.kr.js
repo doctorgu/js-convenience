@@ -106,7 +106,8 @@ function getNameValues(value, separator) {
     const lines = value.split(/\r*\n/)
     for (let i = 0; i < lines.length; i += 1) {
         const line = lines[i].trim()
-        if (!line) continue
+        if (!line || line.startsWith('#'))
+            continue
         
         const items = line.split(separator)
 
