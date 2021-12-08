@@ -106,8 +106,7 @@ function getNameValues(value, separator) {
     const lines = value.split(/\r*\n/)
     for (let i = 0; i < lines.length; i += 1) {
         const line = lines[i].trim()
-        if (!line || line.startsWith('#'))
-            continue
+        if (!line) continue
         
         const items = line.split(separator)
 
@@ -118,7 +117,7 @@ function getNameValues(value, separator) {
         }
 
         const nameRet = `custom_testcases[${i}][output]`
-        const valueRet = items[items.length - 1].trim()
+        const valueRet = items[items.length - 1]
         nameValues.push([nameRet, valueRet])
     }
 
@@ -142,8 +141,8 @@ function addTestCase(value, separator = '&') {
     $('#applicant-testcase-form').find('input').remove()
 
     nameValues.forEach(([name, value]) => {
-        const input = $(`<input name="${name}" />`).val(value)
-        $('#applicant-testcase-form').append(input)
+        const html = `<input name="${name}" value="${value}" />`
+        $('#applicant-testcase-form').append(html)
     })
     
     $('#applicant-testcase-modal .add-testcase').click()
@@ -186,15 +185,30 @@ function getTestCase(separator = '&') {
 
 /*
 --summary
-Apply shortcut of [Ctrl] + K to [코드 실행] button.
+Apply shortcuts 
 --example
-applyShortcutToRunCode()
+applyShortcuts()
 */
-function applyShortcutToRunCode(keyCode = 'K') {
+function applyShortcuts() {
+    function addFor(inc = 'i', target = 'list') {
+        const editor = document.querySelector('.CodeMirror').CodeMirror;
+        const doc = editor.getDoc()
+        const cursor = doc.getCursor()
+        const value = `for (let ${inc} = 0; ${inc} < ${target}; ${inc} += 1) {\n\t}`
+        doc.replaceRange(value, cursor)
+    }
+    
     $(document).on('keydown', function (e) {
-        if (e.ctrlKey && e.keyCode === keyCode.charCodeAt(0)) {
-            e.stopPropagation()
-            $('#run-code').click()
+        if (e.ctrlKey) {
+            // [Ctrl] + K to click [코드 실행] button
+            if (e.keyCode === 'K'.charCodeAt(0)) {
+                e.stopPropagation()
+                $('#run-code').click()
+            }
+            // [Ctrl] + [Space] to insert snippet
+            else if (e.keyCode === ' '.charCodeAt(0)) {
+                addFor()
+            }
         }
     })
 }
