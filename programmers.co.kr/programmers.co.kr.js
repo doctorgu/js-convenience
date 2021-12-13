@@ -106,7 +106,7 @@ function getNameValues(value, separator) {
     const lines = value.split(/\r*\n/)
     for (let i = 0; i < lines.length; i += 1) {
         const line = lines[i].trim()
-        if (!line) continue
+        if (!line || line.startsWith('#')) continue
         
         const items = line.split(separator)
 
@@ -129,13 +129,13 @@ function getNameValues(value, separator) {
 Submit test case by appending input and clicking [확인] button
 --example
 addTestCase(`
-[1, 1] & 4 & -1
-[1, 1, 4] & 4 & 2
-[1, 1] & 0 & 0
-[1, 1, 1] & 2 & 2
+[1, 1] | 4 | -1
+[1, 1, 4] | 4 | 2
+[1, 1] | 0 | 0
+[1, 1, 1] | 2 | 2
 `)
 */
-function addTestCase(value, separator = '&') {
+function addTestCase(value, separator = '|') {
     const nameValues = getNameValues(value, separator)
 
     $('#applicant-testcase-form').find('input').remove()
@@ -150,7 +150,7 @@ function addTestCase(value, separator = '&') {
 
 /*
 --summary
-Print all test case separated by '&'
+Print all test case separated by separator
 --remark
 Last item is return in each row
 --example
@@ -160,7 +160,7 @@ console.log(getTestCase())
 [1, 1] & 0 & 0
 [1, 1, 1] & 2 & 2
 */
-function getTestCase(separator = '&') {
+function getTestCase(separator = '|') {
     const parameters = []
     const returns = []
     $('#applicant-testcase-form').find('input').each(function () {
@@ -194,7 +194,7 @@ function applyShortcuts() {
         const editor = document.querySelector('.CodeMirror').CodeMirror;
         const doc = editor.getDoc()
         const cursor = doc.getCursor()
-        const value = `for (let ${inc} = 0; ${inc} < ${target}; ${inc} += 1) {\n\t}`
+        const value = `for (let ${inc} = 0; ${inc} < ${target}.length; ${inc} += 1) {\n\t}`
         doc.replaceRange(value, cursor)
     }
     
