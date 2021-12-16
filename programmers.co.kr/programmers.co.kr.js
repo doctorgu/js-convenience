@@ -1,3 +1,49 @@
+function getMatchesForExperience(experienceString) {
+    const list = []
+    const matches = experienceString.matchAll(/(?<yyyyFrom>\d{4})\.(?<mmFrom>\d{2}) ~ (?<yyyyTo>\d{4})\.(?<mmTo>\d{2})\t(?<company>.+?)\t(?<role>.+?)\n- (?<language>.+?)\n- (?<db>.+?)\n/g)
+    return [...matches]
+}
+
+function getExperience(match) {
+    const yyyyFrom = match.groups.yyyyFrom
+    const mmFrom = match.groups.mmFrom
+    const yyyyTo = match.groups.yyyyTo
+    const mmTo = match.groups.mmTo
+    // 2021.08 -> 2021-08-01
+    const startAt = `${yyyyFrom}-${mmFrom}-01`
+    const endAt = `${yyyyTo}-${mmTo}-01`
+    const company = match.groups.company
+    const role = match.groups.role
+    const description = `Language: ${match.groups.language} / DB: ${match.groups.db}`
+    const duration = ((parseInt(yyyyTo) - parseInt(yyyyFrom)) * 12) + (parseInt(mmTo) - parseInt(mmFrom)) + 1
+
+    const experience = {
+        "index": -1,
+        "name": company,
+        "description": description,
+        "link": "",
+        "analyzed_link": "",
+        "development_unrelated": false,
+        "role": role,
+        "team_description": "",
+        "start_at": new Date(startAt),
+        "end_at": new Date(endAt),
+        "company": {
+            "id": -1,
+            "name": company,
+            "ceo_name": "",
+            "company_url": "",
+            "home_url": null,
+            "company_id": null
+        },
+        "parts": [],
+        "tags": [],
+        "duration": duration
+    }
+
+    return experience
+}
+
 async function patchExperience(experiences) {
     experiences = experiences.map((ex, i) => {
         const index = (i === experiences.length - 1) ? -1 : null
