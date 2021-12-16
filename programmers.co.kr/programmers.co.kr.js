@@ -1,49 +1,3 @@
-function getMatchesForExperience(experienceString) {
-    const list = []
-    const matches = experienceString.matchAll(/(?<yyyyFrom>\d{4})\.(?<mmFrom>\d{2}) ~ (?<yyyyTo>\d{4})\.(?<mmTo>\d{2})\t(?<company>.+?)\t(?<role>.+?)\n- (?<language>.+?)\n- (?<db>.+?)\n/g)
-    return [...matches]
-}
-
-function getExperience(match) {
-    const yyyyFrom = match.groups.yyyyFrom
-    const mmFrom = match.groups.mmFrom
-    const yyyyTo = match.groups.yyyyTo
-    const mmTo = match.groups.mmTo
-    // 2021.08 -> 2021-08-01
-    const startAt = `${yyyyFrom}-${mmFrom}-01`
-    const endAt = `${yyyyTo}-${mmTo}-01`
-    const company = match.groups.company
-    const role = match.groups.role
-    const description = `Language: ${match.groups.language} / DB: ${match.groups.db}`
-    const duration = ((parseInt(yyyyTo) - parseInt(yyyyFrom)) * 12) + (parseInt(mmTo) - parseInt(mmFrom)) + 1
-
-    const experience = {
-        "index": -1,
-        "name": company,
-        "description": description,
-        "link": "",
-        "analyzed_link": "",
-        "development_unrelated": false,
-        "role": role,
-        "team_description": "",
-        "start_at": new Date(startAt),
-        "end_at": new Date(endAt),
-        "company": {
-            "id": -1,
-            "name": company,
-            "ceo_name": "",
-            "company_url": "",
-            "home_url": null,
-            "company_id": null
-        },
-        "parts": [],
-        "tags": [],
-        "duration": duration
-    }
-
-    return experience
-}
-
 async function patchExperience(experiences) {
     experiences = experiences.map((ex, i) => {
         const index = (i === experiences.length - 1) ? -1 : null
@@ -138,11 +92,24 @@ addTestCase(`
 function addTestCase(value, separator = '|') {
     const nameValues = getNameValues(value, separator)
 
+    const noForm = ($('#applicant-testcase-form').length === 0)
+
+    if (noForm) {
+        const btn = $('div.testcase-button > a:contains(테스트 케이스)')
+        if (btn.length) {
+            btn.click()
+            setTimeout(() => {
+                addTestCase(value, separator)
+            }, 1000)
+            return
+        }
+    }
+    
     $('#applicant-testcase-form').find('input').remove()
 
     nameValues.forEach(([name, value]) => {
-        const html = `<input name="${name}" value="${value}" />`
-        $('#applicant-testcase-form').append(html)
+        const input = $(`<input name="${name}" />`).val(value)
+        $('#applicant-testcase-form').append(input)
     })
     
     $('#applicant-testcase-modal .add-testcase').click()
@@ -183,6 +150,22 @@ function getTestCase(separator = '|') {
     return list.join('\n')
 }
 
+/*
+--summary
+Add for...next statement by reading current shortcut text
+
+--example
+// show using default value
+for
+->
+for (let i = 0; i < list.length; i += 1) {
+}
+// show using parameter
+for.j.targets
+->
+for (let j = 0; j < targets.length; j += 1) {
+}
+*/
 function addFor() {
     function getCode(toks) {
         let indent = '    '
