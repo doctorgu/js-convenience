@@ -183,6 +183,49 @@ function getTestCase(separator = '|') {
     return list.join('\n')
 }
 
+function addFor() {
+    function getCode(toks) {
+        let indent = '    '
+        let what = 'for'
+        let inc = 'i'
+        let target = 'list'
+        let templateFor = `{indent}for (let {inc} = 0; {inc} < {target}.length; {inc} += 1) {\n{indent}}`
+
+        const line = toks.map(tok => tok.string).join('')
+        const m = line.match(/^(?<indent>\s*)(?<what>\w+)(\.(?<inc>\w+)\.(?<target>\w+))*/)
+        if (!m) {
+            return templateFor
+                .replace(/{inc}/g, inc)
+                .replace(/{target}/g, target)
+                .replace(/{indent}/g, indent)
+        }
+
+        what = m.groups.what
+        if (what === 'for') {
+            if (m.groups.inc !== undefined)
+                inc = m.groups.inc
+
+            if (m.groups.target !== undefined)
+                target = m.groups.target
+
+            if (m.groups.indent !== undefined)
+                indent = m.groups.indent
+        }
+
+        return templateFor
+            .replace(/{inc}/g, inc)
+            .replace(/{target}/g, target)
+            .replace(/{indent}/g, indent)
+    }
+    
+    const editor = document.querySelector('.CodeMirror').CodeMirror;
+    const doc = editor.getDoc()
+    const cursor = doc.getCursor()
+    const toks = editor.getLineTokens(cursor.line)
+    const code = getCode(toks)
+    doc.replaceRange(code, { line: cursor.line, ch: 0 }, { line: cursor.line, ch: cursor.ch })
+}
+
 /*
 --summary
 Apply shortcuts 
@@ -190,14 +233,6 @@ Apply shortcuts
 applyShortcuts()
 */
 function applyShortcuts() {
-    function addFor(inc = 'i', target = 'list') {
-        const editor = document.querySelector('.CodeMirror').CodeMirror;
-        const doc = editor.getDoc()
-        const cursor = doc.getCursor()
-        const value = `for (let ${inc} = 0; ${inc} < ${target}.length; ${inc} += 1) {\n\t}`
-        doc.replaceRange(value, cursor)
-    }
-    
     $(document).on('keydown', function (e) {
         if (e.ctrlKey) {
             // [Ctrl] + K to click [코드 실행] button
