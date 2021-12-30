@@ -8,7 +8,7 @@ getSelectedRegion()
 */
 function getSelectedRegion() {
     let row1 = 999, row2 = 0, col1 = 999, col2 = 0
-    iterateSelected((td, i, col, row) => {
+    iterateSelected((td, i, row, col) => {
         if (row < row1) row1 = row
         if (row > row2) row2 = row
 
@@ -24,11 +24,11 @@ function getSelectedRegion() {
 선택된 각 셀에 대해 callbackFn 함수를 호출
 --example
 // 모든 선택 셀의 정보를 출력
-iterateSelected((td, i, cl, rw) => console.log(`td.innerHTML:${td.innerHTML}, i:${i}, cl:${cl}, rw:${rw}`))
+iterateSelected((td, i, rw, cl) => console.log(`td.innerHTML:${td.innerHTML}, i:${i}, rw:${rw}, cl:${cl}`))
 */
 function iterateSelected(callbackFn) {
-    const list = [...document.querySelectorAll("td[data-mce-selected='1']")]
-    list.forEach((td, i) => callbackFn(td, i, td.cellIndex, td.parentElement.rowIndex))
+    const list = [...document.querySelectorAll("th[data-mce-selected='1'],td[data-mce-selected='1']")]
+    list.forEach((td, i) => callbackFn(td, i, td.parentElement.rowIndex, td.cellIndex))
 }
 
 // -------------------------------------------------------------
@@ -262,4 +262,25 @@ function getAllDateUser() {
     const users = [...new Set(userElems.map(t => (`{ username: '${t.getAttribute('data-username')}', display: '${t.getAttribute('data-linked-resource-default-alias')}', userkey: '${t.getAttribute('userkey')}' }`)).sort())]
     
     return [...dates, ...users]
+}
+
+/*
+--summary
+선택된 셀 안에 탭과 줄바꿈으로 구분된 텍스트를 붙여넣음.
+--example
+pasteTsvToTable('a\tb\n1\t2')
+*/
+function pasteTsvToTable(value) {
+    const list = []
+    const rows = value.split(/\r?\n/)
+    for (let rw = 0; rw < rows.length; rw++) {
+        const cells = rows[rw].split('\t')
+        list.push(cells)
+    }
+
+    iterateSelected((td, i, row, col) => {
+        if (row < list.length && col < list[row].length) {
+            td.innerText = list[row][col]
+        }
+    })    
 }
