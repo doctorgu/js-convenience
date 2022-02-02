@@ -1,7 +1,7 @@
 function getMatchesForExperience(experienceString) {
     const list = []
     // const matches = experienceString.matchAll(/(?<yyyyFrom>\d{4})\.(?<mmFrom>\d{2}) ~ (?<yyyyTo>\d{4})\.(?<mmTo>\d{2})\t(?<company>.+?)\t(?<role>.+?)\n- (?<language>.+?)\n- (?<db>.+?)\n/g)
-    const matches = `${experienceString}0000-00`.matchAll(/(?<yyyyFrom>\d{4})\.(?<mmFrom>\d{2}) ~ (?<yyyyTo>\d{4})\.(?<mmTo>\d{2})\t(?<companyWork>.*?)\t(?<companyContact>.+?)\t(?<role>.+?)\t(?<language>.+?)\t(?<db>.+?)\t(?<detail>.+?)(?=\d{4}\.\d{2})/gs)
+    const matches = `${experienceString}0000-00`.matchAll(/(?<yyyyFrom>\d{4})\.(?<mmFrom>\d{2}) ~ (?<yyyyTo>\d{4})\.(?<mmTo>\d{2})\t(?<companyWork>.*?)\t(?<companyContact>.+?)\t(?<role>.+?)\t(?<language>.+?)\t(?<db>.+?)\t(?<detail>.+?)(?=^\d{4}\.\d{2})/gsm)
     return [...matches]
 }
 
@@ -102,6 +102,7 @@ async function patchExperienceAll(experienceString) {
         const result = await patchExperience(experiences)
         console.log(i, result)
     }
+    console.log('OK')
 }
 
 
@@ -281,4 +282,3 @@ function applyShortcuts() {
         }
     })
 }
-
