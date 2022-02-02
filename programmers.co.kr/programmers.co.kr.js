@@ -1,6 +1,7 @@
 function getMatchesForExperience(experienceString) {
     const list = []
-    const matches = experienceString.matchAll(/(?<yyyyFrom>\d{4})\.(?<mmFrom>\d{2}) ~ (?<yyyyTo>\d{4})\.(?<mmTo>\d{2})\t(?<company>.+?)\t(?<role>.+?)\n- (?<language>.+?)\n- (?<db>.+?)\n/g)
+    // const matches = experienceString.matchAll(/(?<yyyyFrom>\d{4})\.(?<mmFrom>\d{2}) ~ (?<yyyyTo>\d{4})\.(?<mmTo>\d{2})\t(?<company>.+?)\t(?<role>.+?)\n- (?<language>.+?)\n- (?<db>.+?)\n/g)
+    const matches = `${experienceString}0000-00`.matchAll(/(?<yyyyFrom>\d{4})\.(?<mmFrom>\d{2}) ~ (?<yyyyTo>\d{4})\.(?<mmTo>\d{2})\t(?<companyWork>.*?)\t(?<companyContact>.+?)\t(?<role>.+?)\t(?<language>.+?)\t(?<db>.+?)\t(?<detail>.+?)(?=\d{4}\.\d{2})/gs)
     return [...matches]
 }
 
@@ -12,14 +13,18 @@ function getExperience(match) {
     // 2021.08 -> 2021-08-01
     const startAt = `${yyyyFrom}-${mmFrom}-01`
     const endAt = `${yyyyTo}-${mmTo}-01`
-    const company = match.groups.company
+    const companyWork = match.groups.companyWork
+    const companyContact = match.groups.companyContact
     const role = match.groups.role
-    const description = `Language: ${match.groups.language} / DB: ${match.groups.db}`
+    
+    const description = `Language: ${match.groups.language}
+DB: ${match.groups.db}
+${match.groups.detail.trim() ? '기여 내용:\n' + match.groups.detail : ''}`
     const duration = ((parseInt(yyyyTo) - parseInt(yyyyFrom)) * 12) + (parseInt(mmTo) - parseInt(mmFrom)) + 1
 
     const experience = {
         "index": -1,
-        "name": company,
+        "name": companyContact,
         "description": description,
         "link": "",
         "analyzed_link": "",
@@ -30,7 +35,7 @@ function getExperience(match) {
         "end_at": new Date(endAt),
         "company": {
             "id": -1,
-            "name": company,
+            "name": companyContact + (companyWork ? ` (${companyWork} 파견)` : ''),
             "ceo_name": "",
             "company_url": "",
             "home_url": null,
@@ -80,12 +85,12 @@ Insert all my job experiences to programmers.co.kr site
 --remark
 Text format is customized for only my resume, so someone need to used this function must change code.
 --example
-patchExperienceAll(`1997.02 ~ 1997.02	디지타워 시스템	물류관리 시스템
-- VB 5.0, Access VBA
-- Access
-1997.03 ~ 1997.08	태영 시스템	병원 관리 프로그램
-- VB 5.0
-- Access
+patchExperienceAll(`2021.08 ~ 2021.12	배달의민족	예우	배달의민족 VOC 시스템 – DB 운영, 튜닝	Java, Javascript, Linux Shell, NodeJS, Python	mySQL 8.0, SQLite	개발과 운영의테이블, 인덱스, 함수 등의 스키마가 다른 경우 생김
+-> 스키마 비교 기능(NodeJS)
+개발에서 스키마의 변경이 언제 발생했는 지 모름
+-> 변경점 관리 기능 (NodeJS)
+조회 속도 느림
+-> SQL 튜닝, 테이블 파티셔닝으로 조회 속도 향상
 `)
 */
 async function patchExperienceAll(experienceString) {
@@ -276,3 +281,4 @@ function applyShortcuts() {
         }
     })
 }
+
