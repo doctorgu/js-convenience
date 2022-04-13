@@ -117,7 +117,24 @@ function getAddedRemovedChanged(
   return { added, removed, changed };
 }
 
+function copyAllAfterModified(rootSrc, rootDest, stdDate, excludePattern) {
+  const pathsSrc = [...findFiles(rootSrc, excludePattern)];
+  pathsSrc.forEach((pathSrc) => {
+    const mtime = fs.statSync(pathSrc).mtime;
+    if (mtime >= stdDate) {
+      const pathDest = rootDest + pathSrc.substr(rootSrc.length);
+      const dir = path.dirname(pathDest);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      fs.copyFileSync(pathSrc, pathDest);
+      console.log(mtime, pathSrc, "->", pathDest);
+    }
+  });
+}
+
 module.exports = {
   findFiles,
   getAddedRemovedChanged,
+  copyAllAfterModified,
 };
